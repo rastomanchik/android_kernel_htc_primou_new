@@ -488,15 +488,6 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
 	input->id.product = 0x0001;
 	input->id.version = 0x0100;
 
-#ifdef CONFIG_TOUCHSCREEN_SYNAPTICS_SWEEP2WAKE
-#ifdef CONFIG_MACH_PRIMOU
-        if (!strcmp(input->name, "gpio-keys")) {
-                sweep2wake_syn_setdev(input);
-                printk(KERN_INFO "[sweep2wake]: set device %s\n", input->name);
-        }
-#endif
-#endif
-
 	/* Enable auto repeat feature of Linux input subsystem */
 	if (pdata->rep)
 		__set_bit(EV_REP, input->evbit);
