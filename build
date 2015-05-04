@@ -1,0 +1,30 @@
+#!/bin/bash
+
+echo "****Очистка старых конфигов****"
+rm -rf modules
+mkdir modules
+export ARCH=arm
+
+export CROSS_COMPILE=~/android_cm11/prebuilt/linux-x86/toolchain/linaro-4.9-cortex-a8/bin/arm-eabi-
+export EABI_PATCH=~/android_cm11/prebuilt/linux-x86/toolchain/linaro-4.9-cortex-a8/bin
+export KERNELRELEASE=3.0.101
+make clean && make mrproper
+
+echo "****Сборка ядра****"
+make -j5 primou_defconfig
+make
+
+#echo "****** Установка модулей ******"
+#find . -name "*.ko" -exec cp {} ~/android/kitkat/kernel/modules/ \;
+
+#cp arch/arm/boot/zImage ~/android/kitkat/zImage
+#cd ~/android/kitkat
+
+#echo "****** Сборка рамдиска ******"
+#./mkbootfs ramdisk | gzip > ramdisk.gz
+
+#echo "****** Сборка ядра ******"
+#./mkbootimg --cmdline 'no_console_suspend=1 androidboot.selinux=permissive' --kernel zImage --ramdisk ramdisk.gz -o boot.img --base 13f00000 --pagesize 2048
+#rm ramdisk.gz
+echo "****Сборка завершена****"
+
