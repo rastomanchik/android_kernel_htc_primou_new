@@ -15,7 +15,7 @@ config BCM4330B2
 config BCM4330_FW_PATH
 	depends on BCM4330B2
 	string "Firmware path"
-	default "/system/etc/firmware/fw_bcm4330.bin"
+	default "/system/etc/firmware/fw_bcm.bin"
 	---help---
 	  Path to the firmware file.
 
