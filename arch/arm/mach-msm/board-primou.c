@@ -2852,7 +2852,6 @@ static struct msm_serial_hs_platform_data msm_uart_dm1_pdata = {
 	.bt_wakeup_pin_supported = 1,
 	.bt_wakeup_pin = PRIMOU_GPIO_BT_CHIP_WAKE,
 	.host_wakeup_pin = PRIMOU_GPIO_BT_HOST_WAKE,
-#endif
 };
 
 #ifdef CONFIG_SERIAL_MSM_HS_PURE_ANDROID
