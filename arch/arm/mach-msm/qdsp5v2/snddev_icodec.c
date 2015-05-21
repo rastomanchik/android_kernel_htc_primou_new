@@ -48,7 +48,7 @@
 *	difei_ding, 2012.02.01
 *		we use mclk as AIC3008's main clock, need modify mclk enable/disable timing
 */
-#if 0
+#ifdef CONFIG_CODEC_AIC3008
 
 #define AUD_DUMP_CLK
 #ifdef AUD_DUMP_CLK
@@ -284,8 +284,11 @@ static int snddev_icodec_open_rx(struct snddev_icodec_state *icodec)
 	struct snddev_icodec_drv_state *drv = &snddev_icodec_drv;
 	struct lpa_codec_config lpa_config;
 
+	printk("%s(): +++\n", __func__);
 	wake_lock(&drv->rx_idlelock);
-
+//HTC_AUD_START
+#ifndef  CONFIG_CODEC_AIC3008
+//HTC_AUD_END
 	/* enable MI2S RX master block */
 	/* enable MI2S RX bit clock */
 	trc = clk_set_rate(drv->rx_mclk,
@@ -295,6 +298,9 @@ static int snddev_icodec_open_rx(struct snddev_icodec_state *icodec)
 
 	clk_enable(drv->rx_mclk);
 	clk_enable(drv->rx_sclk);
+//HTC_AUD_START
+#endif
+//HTC_AUD_END
 	/* clk_set_rate(drv->lpa_codec_clk, 1); */ /* Remove if use pcom */
 	clk_enable(drv->lpa_p_clk);
 	clk_enable(drv->lpa_codec_clk);
@@ -376,6 +382,7 @@ static int snddev_icodec_open_rx(struct snddev_icodec_state *icodec)
 	icodec->enabled = 1;
 
 	wake_unlock(&drv->rx_idlelock);
+	printk("%s(): ---\n", __func__);
 	return 0;
 
 error_afe:
@@ -391,15 +398,24 @@ error_lpa:
 	clk_disable(drv->lpa_p_clk);
 	clk_disable(drv->lpa_codec_clk);
 	clk_disable(drv->lpa_core_clk);
+//HTC_CSP_START
+#ifndef CONFIG_CODEC_AIC3008
 	clk_disable(drv->rx_sclk);
-
 	clk_disable(drv->rx_mclk);
-
+#endif
+//HTC_CSP_END
+//HTC_AUD_START
+#ifndef CONFIG_CODEC_AIC3008
+//HTC_AUD_END
 error_invalid_freq:
 
 	pr_aud_err("%s: encounter error\n", __func__);
 
 	wake_unlock(&drv->rx_idlelock);
+	printk("%s(): ---\n", __func__);
+//HTC_AUD_START
+#endif
+//HTC_AUD_END
 	return -ENODEV;
 }
 
@@ -409,12 +425,15 @@ static int snddev_icodec_open_tx(struct snddev_icodec_state *icodec)
 	struct msm_afe_config afe_config;
 	struct snddev_icodec_drv_state *drv = &snddev_icodec_drv;
 
+	printk("%s(): +++\n", __func__);
 	wake_lock(&drv->tx_idlelock);
 
 	/* Reuse pamp_on for TX platform-specific setup  */
 	if (icodec->data->pamp_on)
 		icodec->data->pamp_on(1);
-
+//HTC_AUD_START
+#ifndef  CONFIG_CODEC_AIC3008
+//HTC_AUD_END
 	/* enable MI2S TX master block */
 	/* enable MI2S TX bit clock */
 	trc = clk_set_rate(drv->tx_mclk,
@@ -423,7 +442,9 @@ static int snddev_icodec_open_tx(struct snddev_icodec_state *icodec)
 		goto error_invalid_freq;
 	clk_enable(drv->tx_mclk);
 	clk_enable(drv->tx_sclk);
-
+//HTC_AUD_START
+#endif
+//HTC_AUD_END
 	/* Set MI2S */
 	mi2s_set_codec_input_path((icodec->data->channel_mode ==
 				REAL_STEREO_CHANNEL_MODE ? MI2S_CHAN_STEREO :
@@ -473,6 +494,7 @@ static int snddev_icodec_open_tx(struct snddev_icodec_state *icodec)
 	icodec->enabled = 1;
 
 	wake_unlock(&drv->tx_idlelock);
+	printk("%s(): ---\n", __func__);
 	return 0;
 
 error_afe:
@@ -481,12 +503,17 @@ error_afe:
 		icodec->adie_path = NULL;
 	}
 error_adie:
-	clk_disable(drv->tx_sclk);
+
+
 //HTC_CSP_START
-//#ifndef CONFIG_CODEC_AIC3008
+#ifndef CONFIG_CODEC_AIC3008
+	clk_disable(drv->tx_sclk);
 	clk_disable(drv->tx_mclk);
-//#endif
+#endif
 //HTC_CSP_END
+//HTC_AUD_START
+#ifndef CONFIG_CODEC_AIC3008
+//HTC_AUD_END
 error_invalid_freq:
 
 	if (icodec->data->pamp_on)
@@ -495,6 +522,10 @@ error_invalid_freq:
 	pr_aud_err("%s: encounter error\n", __func__);
 
 	wake_unlock(&drv->tx_idlelock);
+	printk("%s(): ---\n", __func__);
+//HTC_AUD_START
+#endif
+//HTC_AUD_END
 	return -ENODEV;
 }
 
@@ -544,9 +575,12 @@ static int snddev_icodec_close_rx(struct snddev_icodec_state *icodec)
 
 	/* Disable MI2S RX master block */
 	/* Disable MI2S RX bit clock */
+//HTC_CSP_START
+#ifndef CONFIG_CODEC_AIC3008
 	clk_disable(drv->rx_sclk);
-
 	clk_disable(drv->rx_mclk);
+#endif
+//HTC_CSP_END
 	icodec->enabled = 0;
 
 	wake_unlock(&drv->rx_idlelock);
@@ -581,11 +615,11 @@ static int snddev_icodec_close_tx(struct snddev_icodec_state *icodec)
 
 	/* Disable MI2S TX master block */
 	/* Disable MI2S TX bit clock */
-	clk_disable(drv->tx_sclk);
 //HTC_CSP_START
-//#ifndef CONFIG_CODEC_AIC3008
+#ifndef CONFIG_CODEC_AIC3008
+	clk_disable(drv->tx_sclk);
 	clk_disable(drv->tx_mclk);
-//#endif
+#endif
 //HTC_CSP_END
 
 	/* Reuse pamp_off for TX platform-specific setup  */
@@ -1045,13 +1079,21 @@ static void debugfs_adie_loopback(u32 loop)
 
 		/* Disable MI2S RX master block */
 		/* Disable MI2S RX bit clock */
+//HTC_CSP_START
+#ifndef CONFIG_CODEC_AIC3008
 		clk_disable(drv->rx_sclk);
 		clk_disable(drv->rx_mclk);
+#endif
+//HTC_CSP_END
 
 		/* Disable MI2S TX master block */
 		/* Disable MI2S TX bit clock */
+//HTC_CSP_START
+#ifndef CONFIG_CODEC_AIC3008
 		clk_disable(drv->tx_sclk);
 		clk_disable(drv->tx_mclk);
+#endif
+//HTC_CSP_START
 	}
 }
 
@@ -1128,14 +1170,21 @@ static void debugfs_afe_loopback(u32 loop)
 
 		/* Disable MI2S RX master block */
 		/* Disable MI2S RX bit clock */
+//HTC_CSP_START
+#ifndef CONFIG_CODEC_AIC3008
 		clk_disable(drv->rx_sclk);
 		clk_disable(drv->rx_mclk);
-
+#endif
+//HTC_CSP_END
 
 		/* Disable MI2S TX master block */
 		/* Disable MI2S TX bit clock */
+//HTC_CSP_START
+#ifndef CONFIG_CODEC_AIC3008
 		clk_disable(drv->tx_sclk);
 		clk_disable(drv->tx_mclk);
+#endif
+//HTC_CSP_END
 	}
 }
 
@@ -1212,6 +1261,7 @@ static int __init snddev_icodec_init(void)
 	s32 rc;
 	struct snddev_icodec_drv_state *icodec_drv = &snddev_icodec_drv;
 
+	printk("%s(): +++\n", __func__);
 	rc = platform_driver_register(&snddev_icodec_driver);
 	if (IS_ERR_VALUE(rc))
 		goto error_platform_driver;
@@ -1248,7 +1298,7 @@ static int __init snddev_icodec_init(void)
 		(void *) "adie_loopback", &snddev_icodec_debug_fops);
 	}
 #endif
-#if 0
+#ifdef CONFIG_CODEC_AIC3008
 	clk_enable(icodec_drv->rx_mclk);
 	clk_enable(icodec_drv->rx_sclk);
 	clk_enable(icodec_drv->tx_mclk);
@@ -1265,6 +1315,7 @@ static int __init snddev_icodec_init(void)
 			"snddev_tx_idle");
 	wake_lock_init(&icodec_drv->rx_idlelock, WAKE_LOCK_IDLE,
 			"snddev_rx_idle");
+	printk("%s(): ---\n", __func__);
 	return 0;
 
 error_lpa_p_clk:
@@ -1284,6 +1335,7 @@ error_rx_mclk:
 error_platform_driver:
 
 	pr_aud_err("%s: encounter error\n", __func__);
+	printk("%s(): err\n", __func__);
 	return -ENODEV;
 }
 
