@@ -39,8 +39,8 @@
 
 #define ACDB_CDMA_NB		0x0108b153
 #define ACDB_CDMA_WB		0x0108b154
-#define ACDB_GSM_NB		0x0108b155
-#define ACDB_GSM_WB		0x0108b156
+#define ACDB_GSM_NB		    0x0108b155
+#define ACDB_GSM_WB		    0x0108b156
 #define ACDB_WCDMA_NB		0x0108b157
 #define ACDB_WCDMA_WB		0x0108b158
 

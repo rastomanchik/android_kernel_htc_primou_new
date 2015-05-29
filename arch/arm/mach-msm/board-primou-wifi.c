@@ -83,11 +83,7 @@ static struct resource primou_wifi_resources[] = {
 		.name		= "bcm4329_wlan_irq",
 		.start		= MSM_GPIO_TO_INT(PRIMOU_GPIO_WIFI_IRQ),
 		.end		= MSM_GPIO_TO_INT(PRIMOU_GPIO_WIFI_IRQ),
-#ifdef CONFIG_BCMDHD_GOOGLE
 		.flags          = IORESOURCE_IRQ | IORESOURCE_IRQ_HIGHLEVEL | IORESOURCE_IRQ_SHAREABLE,
-#else
-		.flags          = IORESOURCE_IRQ | IORESOURCE_IRQ_HIGHEDGE,
-#endif
 	},
 };
 
@@ -96,10 +92,8 @@ static struct wifi_platform_data primou_wifi_control = {
 	.set_reset      = primou_wifi_reset,
 	.set_carddetect = primou_wifi_set_carddetect,
 	.mem_prealloc   = primou_wifi_mem_prealloc,
-#ifndef CONFIG_BCMDHD_GOOGLE
  	.get_mac_addr	= primou_wifi_get_mac_addr,
  	.dot11n_enable  = 1,
-#endif
 };
 
 static struct platform_device primou_wifi_device = {
