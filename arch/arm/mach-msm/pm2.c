@@ -2016,8 +2016,6 @@ static int __init msm_pm_init(void)
 	atomic_set(&msm_pm_init_done, 1);
 	suspend_set_ops(&msm_pm_ops);
 
-	arm_pm_idle = arch_idle;
-
 	msm_pm_mode_sysfs_add();
 #ifdef CONFIG_MSM_IDLE_STATS
 	d_entry = create_proc_entry("msm_pm_stats",

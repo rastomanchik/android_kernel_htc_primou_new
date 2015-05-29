@@ -15,7 +15,7 @@
 
 #include <mach/hardware.h>
 
-void arch_idle(void);
+static void arch_idle(void);
 
 #if defined(CONFIG_MSM_NATIVE_RESTART) || defined(CONFIG_ARCH_FSM9XXX)
 void arch_reset(char mode, const char *cmd);
