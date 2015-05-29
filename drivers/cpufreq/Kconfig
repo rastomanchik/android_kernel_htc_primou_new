@@ -70,6 +70,7 @@ config CPU_FREQ_DEFAULT_GOV_POWERSAVE
 config CPU_FREQ_DEFAULT_GOV_SMARTASS2
 	bool "smartass2"
 	select CPU_FREQ_GOV_SMARTASS2
+	select CPU_FREQ_GOV_PERFORMANCE
 	help
 	  Use the CPUFreq governor 'smartass2' as default.
 
@@ -282,7 +283,7 @@ config CPU_FREQ_VDD_LEVELS
   	bool "CPU Vdd levels sysfs interface"
   	depends on CPU_FREQ_STAT
   	depends on ARCH_MSM7X30
-  	default y
+  	default n
  	help
     	CPU Vdd levels sysfs interface
 

@@ -1434,7 +1434,7 @@ static int msm_pm_swfi(bool from_idle, bool ramp_acpu)
 /*
  * Put CPU in low power mode.
  */
-void arch_idle(void)
+static void arch_idle(void)
 {
 	bool allow[MSM_PM_SLEEP_MODE_NR];
 	uint32_t sleep_limit = SLEEP_LIMIT_NONE;
@@ -2015,6 +2015,8 @@ static int __init msm_pm_init(void)
 
 	atomic_set(&msm_pm_init_done, 1);
 	suspend_set_ops(&msm_pm_ops);
+
+	arm_pm_idle = arch_idle;
 
 	msm_pm_mode_sysfs_add();
 #ifdef CONFIG_MSM_IDLE_STATS

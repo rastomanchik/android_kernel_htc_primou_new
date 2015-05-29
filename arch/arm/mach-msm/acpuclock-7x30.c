@@ -55,8 +55,8 @@
 
 struct clock_state {
 	struct clkctl_acpu_speed	*current_speed;
-	struct mutex			    lock;
-	struct clk			        *ebi1_clk;
+	struct mutex                lock;
+	struct clk                  *ebi1_clk;
 };
 
 struct pll {
@@ -89,7 +89,7 @@ static struct pll pll2_tbl[] = {
 	{ 47, 1, 3, 0 }, /* 47 * 19,2MHz =  902,4 MHz */
 	{ 53, 1, 3, 0 }, /* 53 * 19,2MHz = 1017,6 MHz */
 	{ 58, 1, 3, 0 }, /* 58 * 19,2MHz = 1113,6 MHz */
-	{ 63, 1, 3, 0 }, /* 63 * 19,2MHz = 1209,6 MHz */
+	{ 125, 0, 1, 1 },/*  1200 MHz */
 	{ 68, 1, 3, 0 }, /* 68 * 19,2MHz = 1305,6 MHz */
 	{ 73, 0, 1, 0 }, /* 73 * 19,2MHz = 1401,6 MHz */
 	{ 78, 0, 1, 0 }, /* 78 * 19,2MHz = 1497,6 MHz */
@@ -125,14 +125,12 @@ static struct clkctl_acpu_speed acpu_freq_tbl[] = {
 	{ 1, 368640, PLL_3,    5, 1,  122800000, 900,  VDD_RAW(900) },
 	{ 1, 460800, PLL_1,    2, 0,  153600000, 950,  VDD_RAW(950) },
 	{ 1, 768000, PLL_1,    2, 0,  153600000, 1050, VDD_RAW(1050) },
-	/*
-	 * AXI has MSMC1 implications. See above.
-	 */
+
 	{ 1, 806400,  PLL_2, 3, 0, UINT_MAX, 1100, VDD_RAW(1100), &pll2_tbl[0]},
 	{ 1, 902400,  PLL_2, 3, 0, UINT_MAX, 1125, VDD_RAW(1125), &pll2_tbl[1]},
 	{ 1, 1017600, PLL_2, 3, 0, UINT_MAX, 1175, VDD_RAW(1175), &pll2_tbl[2]},
 	{ 1, 1113600, PLL_2, 3, 0, UINT_MAX, 1200, VDD_RAW(1200), &pll2_tbl[3]},
-	{ 1, 1209600, PLL_2, 3, 0, UINT_MAX, 1200, VDD_RAW(1200), &pll2_tbl[4]},
+	{ 1, 1200000, PLL_2, 3, 0, UINT_MAX, 1200, VDD_RAW(1200), &pll2_tbl[4]},
 	{ 1, 1305600, PLL_2, 3, 0, UINT_MAX, 1225, VDD_RAW(1225), &pll2_tbl[5]},
 	{ 1, 1401600, PLL_2, 3, 0, UINT_MAX, 1250, VDD_RAW(1250), &pll2_tbl[6]},
 	{ 1, 1497600, PLL_2, 3, 0, UINT_MAX, 1300, VDD_RAW(1250), &pll2_tbl[7]},
@@ -144,11 +142,15 @@ static int acpuclk_set_acpu_vdd(struct clkctl_acpu_speed *s)
 	int ret = msm_spm_set_vdd(0, s->vdd_raw);
 
 	if (ret)
-		return ret;
-		
-	/* Wait for voltage to stabilize. */
-    udelay(62);
-	return 0;
+		printk(KERN_ERR "%s: failed, vdd_mv=%d, ret=%d\n",
+				__func__, s->vdd_mv, ret);
+	else /* Wait for voltage to stabilize. */
+		udelay(62);
+
+	if (!ret)
+		return 0;
+
+	return ret;
 }
 
 /* Assumes PLL2 is off and the acpuclock isn't sourced from PLL2 */
@@ -457,6 +459,14 @@ static void __init populate_plls(void)
 	BUG_ON(IS_ERR(acpuclk_sources[PLL_2]));
 	acpuclk_sources[PLL_3] = clk_get_sys("acpu", "pll3_clk");
 	BUG_ON(IS_ERR(acpuclk_sources[PLL_3]));
+	/*
+	 * Prepare all the PLLs because we enable/disable them
+	 * from atomic context and can't always ensure they're
+	 * all prepared in non-atomic context.
+	 */
+	BUG_ON(clk_prepare(acpuclk_sources[PLL_1]));
+	BUG_ON(clk_prepare(acpuclk_sources[PLL_2]));
+	BUG_ON(clk_prepare(acpuclk_sources[PLL_3]));
 }
 
 static struct acpuclk_data acpuclk_7x30_data = {
@@ -487,8 +497,8 @@ struct acpuclk_soc_data acpuclk_7x30_soc_data __initdata = {
 };
 
 #ifdef CONFIG_CPU_FREQ_VDD_LEVELS
-#define ACPU_MIN_UV_MV 700U
-#define ACPU_MAX_UV_MV 1600U
+#define ACPU_MIN_UV_MV 750U
+#define ACPU_MAX_UV_MV 1450U
 
 ssize_t acpuclk_get_vdd_levels_str(char *buf)
 {

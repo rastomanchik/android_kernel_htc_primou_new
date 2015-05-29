@@ -9,11 +9,7 @@
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <linux/skbuff.h>
-#ifdef CONFIG_BCMDHD_GOOGLE
-#include <linux/wlan_plat.h>
-#else
 #include <linux/wifi_tiwlan.h>
-#endif
 
 #include "board-primou.h"
 
@@ -83,7 +79,11 @@ static struct resource primou_wifi_resources[] = {
 		.name		= "bcm4329_wlan_irq",
 		.start		= MSM_GPIO_TO_INT(PRIMOU_GPIO_WIFI_IRQ),
 		.end		= MSM_GPIO_TO_INT(PRIMOU_GPIO_WIFI_IRQ),
+#ifdef HW_OOB
 		.flags          = IORESOURCE_IRQ | IORESOURCE_IRQ_HIGHLEVEL | IORESOURCE_IRQ_SHAREABLE,
+#else
+		.flags          = IORESOURCE_IRQ | IORESOURCE_IRQ_HIGHEDGE,
+#endif
 	},
 };
 
@@ -92,8 +92,8 @@ static struct wifi_platform_data primou_wifi_control = {
 	.set_reset      = primou_wifi_reset,
 	.set_carddetect = primou_wifi_set_carddetect,
 	.mem_prealloc   = primou_wifi_mem_prealloc,
- 	.get_mac_addr	= primou_wifi_get_mac_addr,
- 	.dot11n_enable  = 1,
+	.get_mac_addr	= primou_wifi_get_mac_addr,
+	.dot11n_enable  = 1,
 };
 
 static struct platform_device primou_wifi_device = {
@@ -188,7 +188,6 @@ static unsigned strip_nvs_param(char *param)
 }
 #endif
 
-#ifndef CONFIG_BCMDHD_GOOGLE
 #define WIFI_MAC_PARAM_STR     "macaddr="
 #define WIFI_MAX_MAC_LEN       17 /* XX:XX:XX:XX:XX:XX */
 
@@ -258,7 +257,6 @@ int primou_wifi_get_mac_addr(unsigned char *buf)
 
 	return 0;
 }
-#endif //#ifndef CONFIG_BCMDHD_GOOGLE
 
 int __init primou_wifi_init(void)
 {
