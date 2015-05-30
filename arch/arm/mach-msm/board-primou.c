@@ -2651,19 +2651,6 @@ static struct msm_otg_platform_data msm_otg_pdata = {
 	.phy_type = CI_45NM_INTEGRATED_PHY,
 };
 
-static struct android_pmem_platform_data android_pmem_pdata = {
-	.name = "pmem",
-	.allocator_type = PMEM_ALLOCATORTYPE_ALLORNOTHING,
-	.cached = 1,
-	.memory_type = MEMTYPE_EBI0,
-};
-
-static struct platform_device android_pmem_device = {
-	.name = "android_pmem",
-	.id = 0,
-	.dev = { .platform_data = &android_pmem_pdata },
-};
-
 #ifndef CONFIG_FB_MSM_NEW
 struct resource msm_fb_resources[] = {
 	{
@@ -3072,7 +3059,6 @@ static struct platform_device *devices[] __initdata = {
 #ifdef CONFIG_I2C_SSBI
         &msm_device_ssbi7,
 #endif
-        &android_pmem_device,
         &msm_migrate_pages_device,
 #ifdef CONFIG_MSM_ROTATOR
         &msm_rotator_device,
@@ -3893,14 +3879,6 @@ static void __init primou_init(void)
 	primou_wifi_init();
 }
 
-static unsigned pmem_sf_size = MSM_PMEM_SF_SIZE;
-static int __init pmem_sf_size_setup(char *p)
-{
-	pmem_sf_size = memparse(p, NULL);
-	return 0;
-}
-early_param("pmem_sf_size", pmem_sf_size_setup);
-
 static unsigned fb_size;
 static int __init fb_size_setup(char *p)
 {
@@ -3908,14 +3886,6 @@ static int __init fb_size_setup(char *p)
 	return 0;
 }
 early_param("fb_size", fb_size_setup);
-
-static unsigned pmem_adsp_size = MSM_PMEM_ADSP_SIZE;
-static int __init pmem_adsp_size_setup(char *p)
-{
-	pmem_adsp_size = memparse(p, NULL);
-	return 0;
-}
-early_param("pmem_adsp_size", pmem_adsp_size_setup);
 
 static struct ion_co_heap_pdata co_ion_pdata = {
 	.adjacent_mem_id = INVALID_HEAP_ID,
@@ -3970,23 +3940,10 @@ static struct memtype_reserve msm7x30_reserve_table[] __initdata = {
 	},
 };
 
-unsigned long msm_ion_camera_size;
-static void fix_sizes(void)
-{
-	msm_ion_camera_size = pmem_adsp_size;
-}
-
-static void __init size_pmem_device(struct android_pmem_platform_data *pdata, unsigned long start, unsigned long size)
-{
-	pdata->start = start;
-	pdata->size = size;
-	pr_info("%s: allocating %lu bytes at 0x%p (0x%lx physical) for %s\n",
-		__func__, size, __va(start), start, pdata->name);
-}
-
 static void __init size_pmem_devices(void)
 {
-	size_pmem_device(&android_pmem_adsp_pdata, MSM_PMEM_ADSP_BASE, pmem_adsp_size);
+	android_pmem_adsp_pdata.start = MSM_PMEM_ADSP_BASE;
+	android_pmem_adsp_pdata.size = MSM_PMEM_ADSP_SIZE;
 }
 
 static void __init size_ion_devices(void)
@@ -3999,13 +3956,11 @@ static void __init size_ion_devices(void)
 
 static void __init reserve_memory(void)
 {
-    msm7x30_reserve_table[MEMTYPE_EBI0].size += PMEM_KERNEL_EBI0_SIZE;
 	msm7x30_reserve_table[MEMTYPE_EBI0].size += 0x7A1200;
 }
 
 static void __init msm7x30_calculate_reserve_sizes(void)
 {
-	fix_sizes();
 	size_pmem_devices();
 	reserve_memory();
 	size_ion_devices();
