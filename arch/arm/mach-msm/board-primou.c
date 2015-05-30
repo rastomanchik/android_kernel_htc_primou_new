@@ -56,6 +56,7 @@
 #include <mach/qdsp5v2/msm_lpa.h>
 #include <mach/dma.h>
 #include <linux/android_pmem.h>
+#include <linux/fmem.h>
 #include <linux/input/msm_ts.h>
 #include <mach/pmic.h>
 #include <mach/rpc_pmapp.h>
@@ -2649,16 +2650,27 @@ static struct platform_device msm_migrate_pages_device = {
 };
 
 static struct android_pmem_platform_data android_pmem_adsp_pdata = {
-       .name = "pmem_adsp",
-       .allocator_type = PMEM_ALLOCATORTYPE_BITMAP,
-       .cached = 1,
-	.memory_type = MEMTYPE_EBI0,
+        .name = "pmem_adsp",
+        .allocator_type = PMEM_ALLOCATORTYPE_BITMAP,
+        .cached = 0,
+        .memory_type = MEMTYPE_EBI0,
+        .request_region = request_fmem_c_region,
+        .release_region = release_fmem_c_region,
+        .reusable = 1,
 };
 
 static struct platform_device android_pmem_adsp_device = {
        .name = "android_pmem",
-       .id = 2,
+       .id = 0,
        .dev = { .platform_data = &android_pmem_adsp_pdata },
+};
+
+static struct fmem_platform_data fmem_pdata;
+
+static struct platform_device fmem_device = {
+	.name = "fmem",
+	.id = -1,
+	.dev = { .platform_data = &fmem_pdata },
 };
 
 static struct htc_battery_platform_data htc_battery_pdev_data = {
@@ -3048,6 +3060,7 @@ static struct platform_device *devices[] __initdata = {
         &msm_rotator_device,
 #endif
         &android_pmem_adsp_device,
+        &fmem_device,
         &msm_device_i2c,
         &msm_device_i2c_2,
         &hs_device,
@@ -3928,6 +3941,8 @@ static void __init size_pmem_devices(void)
 {
 	android_pmem_adsp_pdata.start = MSM_PMEM_ADSP_BASE;
 	android_pmem_adsp_pdata.size = MSM_PMEM_ADSP_SIZE;
+	fmem_pdata.size = MSM_PMEM_ADSP_SIZE;
+	fmem_pdata.align = PAGE_SIZE;
 }
 
 static void __init size_ion_devices(void)
@@ -3938,15 +3953,9 @@ static void __init size_ion_devices(void)
  	ion_pdata.heaps[2].size = MSM_ION_SF_SIZE;
 }
 
-static void __init reserve_memory(void)
-{
-	msm7x30_reserve_table[MEMTYPE_EBI0].size += 0x7A1200;
-}
-
 static void __init msm7x30_calculate_reserve_sizes(void)
 {
 	size_pmem_devices();
-	reserve_memory();
 	size_ion_devices();
 }
 
@@ -3969,6 +3978,8 @@ static void __init primou_reserve(void)
 {
 	reserve_info = &msm7x30_reserve_info;
 	msm_reserve();
+	fmem_pdata.phys =
+		reserve_memory_for_fmem(fmem_pdata.size, fmem_pdata.align);
 };
 
 static void __init primou_allocate_memory_regions(void)
