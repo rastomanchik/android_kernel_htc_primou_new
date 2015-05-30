@@ -22,6 +22,6 @@ config BCMDHD_FW_PATH
 config BCMDHD_NVRAM_PATH
 	depends on BCMDHD
 	string "NVRAM path"
-	default "/system/etc/calibration"
+	default "/proc/calibration"
 	---help---
 	  Path to the calibration file.

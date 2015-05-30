@@ -377,15 +377,22 @@ LINUXINCLUDE    := -I$(srctree)/arch/$(hdr-arch)/include \
 
 KBUILD_CPPFLAGS	:= -D__KERNEL__
 
-KBUILD_CFLAGS   := -Wstrict-prototypes -Wno-trigraphs \
-		   			-fno-strict-aliasing -fno-common \
-		   			-Wno-format-security \
+#KBUILD_CFLAGS   := -Wstrict-prototypes -Wno-trigraphs \
+#		   			-fno-strict-aliasing -fno-common \
+#		   			-Wno-format-security \
+#		   			-Werror-implicit-function-declaration \
+#                   -fno-delete-null-pointer-checks -mno-unaligned-access \
+#		   			-marm -mcpu=cortex-a8 -mtune=cortex-a8 -mfpu=neon \
+#		   			-fsingle-precision-constant -fpredictive-commoning -fipa-cp-clone \
+#                   -fmodulo-sched -fmodulo-sched-allow-regmoves \
+#		   			-funsafe-math-optimizations -fgcse-after-reload -pipe
+
+KBUILD_CFLAGS   :=  -Wall -Wundef -Wstrict-prototypes -fno-strict-aliasing \
 		   			-Werror-implicit-function-declaration \
-                   	-fno-delete-null-pointer-checks -mno-unaligned-access \
-		   			-marm -mcpu=cortex-a8 -mtune=cortex-a8 -mfpu=neon \
-		   			-fsingle-precision-constant -fpredictive-commoning -fipa-cp-clone \
-                   	-fmodulo-sched -fmodulo-sched-allow-regmoves \
-		   			-funsafe-math-optimizations -fgcse-after-reload -pipe
+                    -marm -mcpu=cortex-a8 -mtune=cortex-a8 -mfpu=neon \
+                    -fsingle-precision-constant -fpredictive-commoning -fipa-cp-clone \
+                    -fmodulo-sched -fmodulo-sched-allow-regmoves \
+                    -funsafe-math-optimizations -fgcse-after-reload -pipe
 
 KBUILD_AFLAGS_KERNEL :=
 KBUILD_CFLAGS_KERNEL :=
