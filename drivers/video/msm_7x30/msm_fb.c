@@ -848,9 +848,6 @@ static int msmfb_overlay_play(struct fb_info *info, unsigned long *argp)
 	ret = mdp->overlay_play(mdp, info, &req, &p_src_file);
 	mutex_unlock(&overlay_ioctl_mutex);
 
-	if (p_src_file)
-		put_pmem_file(p_src_file);
-
 	return ret;
 }
 
@@ -868,9 +865,6 @@ static int msmfb_overlay_blt(struct fb_info *info, unsigned long *argp)
 	}
 
 	ret = mdp4_overlay_blt(mdp, info, &req, &p_src_file);
-
-	if (p_src_file)
-		put_pmem_file(p_src_file);
 
 	return ret;
 }

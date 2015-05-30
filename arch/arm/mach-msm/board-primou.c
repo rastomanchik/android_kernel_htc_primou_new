@@ -172,22 +172,6 @@ static void config_gpio_table(uint32_t *table, int len)
 	}
 };
 
-static int primou_ts_power(int on)
-{
-	pr_info("%s: power %d\n", __func__, on);
-
-	if (on == 1) {
-		gpio_set_value(PM8058_GPIO_PM_TO_SYS(PRIMOU_TP_RSTz), 1);
-	} else if (on == 2) {
-		gpio_set_value(PM8058_GPIO_PM_TO_SYS(PRIMOU_TP_RSTz), 0);
-		msleep(5);
-		gpio_set_value(PM8058_GPIO_PM_TO_SYS(PRIMOU_TP_RSTz), 1);
-		msleep(40);
-	}
-
-	return 0;
-}
-
 static struct synaptics_i2c_rmi_platform_data primou_ts_synaptics_data[] = { /* Synatpics sensor */
 	{
 		.version = 0x3330,
