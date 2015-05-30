@@ -70,7 +70,6 @@
 #include <linux/fb.h>
 #include <linux/msm_mdp.h>
 #include <linux/file.h>
-#include <linux/android_pmem.h>
 #include <linux/major.h>
 #include <asm/system.h>
 #include <asm/mach-types.h>
@@ -1585,14 +1584,7 @@ static int get_img(struct msmfb_data *img, struct fb_info *info,
 {
 	int put_needed, ret = 0, fb_num;
 	struct file *file;
-#ifdef CONFIG_ANDROID_PMEM
-	unsigned long vstart;
-#endif
 
-#ifdef CONFIG_ANDROID_PMEM
-	if (!get_pmem_file(img->memory_id, start, &vstart, len, pp_file))
-		return 0;
-#endif
 	file = fget_light(img->memory_id, &put_needed);
 	if (file == NULL)
 		return -1;

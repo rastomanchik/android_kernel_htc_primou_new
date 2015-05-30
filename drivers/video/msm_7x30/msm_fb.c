@@ -32,7 +32,6 @@
 #include <linux/clk.h>
 #include <linux/debugfs.h>
 #include <linux/dma-mapping.h>
-#include <linux/android_pmem.h>
 #include <mach/debug_display.h>
 #include "mdp_hw.h"
 #ifdef CONFIG_MSM_MDP40
