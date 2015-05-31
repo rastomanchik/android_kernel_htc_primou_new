@@ -144,7 +144,7 @@ struct ion_heap_ops {
 				unsigned long flags);
 	void (*unmap_iommu)(struct ion_iommu_map *data);
 	int (*print_debug)(struct ion_heap *heap, struct seq_file *s,
-			   const struct rb_root *mem_map);
+			   const struct list_head *mem_map);
 	int (*secure_heap)(struct ion_heap *heap, int version, void *data);
 	int (*unsecure_heap)(struct ion_heap *heap, int version, void *data);
 };
@@ -186,7 +186,7 @@ struct ion_heap {
  *
  */
 struct mem_map_data {
-	struct rb_node node;
+	struct list_head node;
 	unsigned long addr;
 	unsigned long addr_end;
 	unsigned long size;
