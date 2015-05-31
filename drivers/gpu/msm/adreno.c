@@ -117,7 +117,7 @@ static struct adreno_device device_3d0 = {
 
 /* This set of registers are used for Hang detection
  * If the values of these registers are same after
- * KGSL_TIMEOUT_PART time, GPU hang is reported in
+ * KGSL_TIMEOUT_HANG_DETECT time, GPU hang is reported in
  * kernel log.
  */
 unsigned int hang_detect_regs[] = {
@@ -1842,7 +1842,7 @@ static int adreno_ringbuffer_drain(struct kgsl_device *device,
 	/*
 	 * The first time into the loop, wait for 100 msecs and kick wptr again
 	 * to ensure that the hardware has updated correctly.  After that, kick
-	 * it periodically every KGSL_TIMEOUT_PART msecs until the timeout
+	 * it periodically every KGSL_TIMEOUT_HANG_DETECT msecs until the timeout
 	 * expires
 	 */
 
@@ -1854,7 +1854,7 @@ static int adreno_ringbuffer_drain(struct kgsl_device *device,
 			if (adreno_hang_detect(device, regs))
 				return -ETIMEDOUT;
 
-			wait = jiffies + msecs_to_jiffies(KGSL_TIMEOUT_PART);
+			wait = jiffies + msecs_to_jiffies(KGSL_TIMEOUT_HANG_DETECT);
 		}
 		GSL_RB_GET_READPTR(rb, &rb->rptr);
 
@@ -1895,7 +1895,7 @@ retry:
 
 	/* now, wait for the GPU to finish its operations */
 	wait_time = jiffies + msecs_to_jiffies(ADRENO_IDLE_TIMEOUT);
-	wait_time_part = jiffies + msecs_to_jiffies(KGSL_TIMEOUT_PART);
+	wait_time_part = jiffies + msecs_to_jiffies(KGSL_TIMEOUT_HANG_DETECT);
 
 	while (time_before(jiffies, wait_time)) {
 		adreno_regread(device, adreno_dev->gpudev->reg_rbbm_status,
@@ -1912,7 +1912,7 @@ retry:
 		 */
 		if (time_after(jiffies, wait_time_part)) {
 				wait_time_part = jiffies +
-					msecs_to_jiffies(KGSL_TIMEOUT_PART);
+					msecs_to_jiffies(KGSL_TIMEOUT_HANG_DETECT);
 				if ((adreno_hang_detect(device, prev_reg_val)))
 					goto err;
 		}
@@ -2265,8 +2265,8 @@ unsigned int adreno_hang_detect(struct kgsl_device *device,
 	}
 
 	/*
-	 * Time interval between hang detection should be KGSL_TIMEOUT_PART
-	 * or more, if next hang detection is requested < KGSL_TIMEOUT_PART
+	 * Time interval between hang detection should be KGSL_TIMEOUT_HANG_DETECT
+	 * or more, if next hang detection is requested < KGSL_TIMEOUT_HANG_DETECT
 	 * from the last time do nothing.
 	 */
 	if ((next_hang_detect_time) &&
@@ -2274,7 +2274,7 @@ unsigned int adreno_hang_detect(struct kgsl_device *device,
 			return 0;
 	else
 		next_hang_detect_time = (jiffies +
-			msecs_to_jiffies(KGSL_TIMEOUT_PART-1));
+			msecs_to_jiffies(KGSL_TIMEOUT_HANG_DETECT-1));
 
 	for (i = 0; i < hang_detect_regs_count; i++) {
 
@@ -2361,7 +2361,7 @@ static int _check_pending_timestamp(struct kgsl_device *device,
  * @msecs - amount of time to wait (in milliseconds)
  *
  * Wait 'msecs' milliseconds for the specified timestamp to expire. Wake up
- * every KGSL_TIMEOUT_PART milliseconds to check for a device hang and process
+ * every KGSL_TIMEOUT_HANG_DETECT milliseconds to check for a device hang and process
  * one if it happened.  Otherwise, spend most of our time in an interruptible
  * wait for the timestamp interrupt to be processed.  This function must be
  * called with the mutex already held.
@@ -2411,7 +2411,7 @@ static int adreno_waittimestamp(struct kgsl_device *device,
 	 * On the first time through the loop only wait 100ms.
 	 * this gives enough time for the engine to start moving and oddly
 	 * provides better hang detection results than just going the full
-	 * KGSL_TIMEOUT_PART right off the bat. The exception to this rule
+	 * KGSL_TIMEOUT_HANG_DETECT right off the bat. The exception to this rule
 	 * is if msecs happens to be < 100ms then just use the full timeout
 	 */
 
@@ -2499,12 +2499,12 @@ static int adreno_waittimestamp(struct kgsl_device *device,
 		}
 
 		/*
-		 * We want to wait the floor of KGSL_TIMEOUT_PART
+		 * We want to wait the floor of KGSL_TIMEOUT_HANG_DETECT
 		 * and (msecs - time_elapsed).
 		 */
 
-		if (KGSL_TIMEOUT_PART < (msecs - time_elapsed))
-			wait = KGSL_TIMEOUT_PART;
+		if (KGSL_TIMEOUT_HANG_DETECT < (msecs - time_elapsed))
+			wait = KGSL_TIMEOUT_HANG_DETECT;
 		else
 			wait = (msecs - time_elapsed);
 

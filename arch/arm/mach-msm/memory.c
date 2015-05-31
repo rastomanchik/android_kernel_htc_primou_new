@@ -37,6 +37,7 @@
 #include <mach/msm_iomap.h>
 #include <mach/socinfo.h>
 #include <../../mm/mm.h>
+#include <linux/fmem.h>
 
 #if defined(CONFIG_ARCH_MSM7X30)
 unsigned int ebi0_size = 0x20000000;
@@ -294,6 +295,16 @@ static void __init reserve_memory_for_mempools(void)
 			}
 		}
 	}
+}
+
+int request_fmem_c_region(void *unused)
+{
+	return fmem_set_state(FMEM_C_STATE);
+}
+
+int release_fmem_c_region(void *unused)
+{
+	return fmem_set_state(FMEM_T_STATE);
 }
 
 unsigned long __init reserve_memory_for_fmem(unsigned long fmem_size,
