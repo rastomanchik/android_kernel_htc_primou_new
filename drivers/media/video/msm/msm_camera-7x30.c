@@ -202,8 +202,7 @@ static void msm_enqueue_vpe(struct msm_device_queue *queue,
 		qcmd = list_first_entry(&__q->list,		\
 			struct msm_queue_cmd, member);		\
 		if (qcmd) {                         \
-			if ((&qcmd->member) && (&qcmd->member.next) && (&qcmd->member.prev)) \
-				CDBG("[CAM] %s, qcmd->member.next= 0x%p\n", __func__, qcmd->member.next);	\
+			if (&qcmd->member)	\
 				list_del_init(&qcmd->member);			\
 		free_qcmd(qcmd);				\
 		}                                   \
@@ -846,11 +845,7 @@ static int msm_control(struct msm_control_device *ctrl_pmsm,
 	struct msm_ctrl_cmd udata;
 	struct msm_queue_cmd qcmd;
 	struct msm_queue_cmd *qcmd_resp = NULL;
-#ifdef CONFIG_MACH_SAGA
-	uint8_t data[max_control_command_size];
-#else
 	uint8_t data[50];
-#endif
 
 	if (copy_from_user(&udata, arg, sizeof(struct msm_ctrl_cmd))) {
 		ERR_COPY_FROM_USER();
@@ -2693,7 +2688,6 @@ static int __msm_release(struct msm_sync *sync)
 		msm_queue_drain(&sync->pict_q, list_pict);
 
 		/* HTC */
-		wake_unlock(&sync->wake_suspend_lock);
 		wake_unlock(&sync->wake_lock);
 
 		sync->apps_id = NULL;
@@ -3193,7 +3187,6 @@ static int __msm_open(struct msm_sync *sync, const char *const apps_id)
 
 	if (!sync->opencnt) {
 		/* HTC */
-		wake_lock(&sync->wake_suspend_lock);
 		wake_lock(&sync->wake_lock);
 
 		atomic_set(&sync->send_output_s, 0);
@@ -3282,6 +3275,14 @@ static int msm_open_common(struct inode *inode, struct file *filep,
 	return rc;
 }
 
+static int msm_open_frame(struct inode *inode, struct file *filep)
+{
+	struct msm_cam_device *pmsm =
+		container_of(inode->i_cdev, struct msm_cam_device, cdev);
+	msm_queue_drain(&pmsm->sync->frame_q, list_frame);
+	return msm_open_common(inode, filep, 1);
+}
+
 static int msm_open(struct inode *inode, struct file *filep)
 {
 	msm_show_time();
@@ -3364,7 +3365,7 @@ end:
 
 static const struct file_operations msm_fops_config = {
 	.owner = THIS_MODULE,
-	.open = msm_open,
+	.open = msm_open_frame,
 	.unlocked_ioctl = msm_ioctl_config,
 	.release = msm_release_config,
 };
@@ -3721,7 +3722,6 @@ static int msm_sync_init(struct msm_sync *sync,
 	msm_queue_init(&sync->vpe_q, "vpe");
 
 	/* HTC */
-	wake_lock_init(&sync->wake_suspend_lock, WAKE_LOCK_SUSPEND, "msm_camera_wake");
 	wake_lock_init(&sync->wake_lock, WAKE_LOCK_IDLE, "msm_camera");
 	if (!sync->sdata->use_rawchip) {
 		rc = msm_camio_probe_on(pdev);
@@ -3753,7 +3753,6 @@ static int msm_sync_init(struct msm_sync *sync,
 			__func__,
 			sync->sdata->sensor_name);
 		/* HTC */
-		wake_lock_destroy(&sync->wake_suspend_lock);
 		wake_lock_destroy(&sync->wake_lock);
 		return rc;
 	}
@@ -3767,7 +3766,6 @@ static int msm_sync_init(struct msm_sync *sync,
 static int msm_sync_destroy(struct msm_sync *sync)
 {
 	/* HTC */
-	wake_lock_destroy(&sync->wake_suspend_lock);
 	wake_lock_destroy(&sync->wake_lock);
 	return 0;
 }
