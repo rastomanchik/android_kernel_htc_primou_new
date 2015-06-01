@@ -56,7 +56,6 @@
 #include <mach/qdsp5v2/msm_lpa.h>
 #include <mach/dma.h>
 #include <linux/android_pmem.h>
-#include <linux/fmem.h>
 #include <linux/input/msm_ts.h>
 #include <mach/pmic.h>
 #include <mach/rpc_pmapp.h>
@@ -2654,7 +2653,6 @@ static struct android_pmem_platform_data android_pmem_adsp_pdata = {
         .allocator_type = PMEM_ALLOCATORTYPE_BITMAP,
         .cached = 1,
         .memory_type = MEMTYPE_EBI0,
-        .reusable = 1,
 };
 
 static struct platform_device android_pmem_adsp_device = {
@@ -3890,7 +3888,6 @@ struct ion_platform_heap msm7x30_heaps[] = {
 			.type	= ION_HEAP_TYPE_CARVEOUT,
 			.name	= ION_CAMERA_HEAP_NAME,
 			.memory_type = ION_EBI_TYPE,
-			.has_outer_cache = 1,
 			.extra_data = (void *)&co_ion_pdata,
 		},
 		/* PMEM_MDP = SF */
@@ -3899,14 +3896,14 @@ struct ion_platform_heap msm7x30_heaps[] = {
 			.type	= ION_HEAP_TYPE_CARVEOUT,
 			.name	= ION_SF_HEAP_NAME,
 			.memory_type = ION_EBI_TYPE,
-			.has_outer_cache = 1,
 			.extra_data = (void *)&co_ion_pdata,
 		},
 };
 
 static struct ion_platform_data ion_pdata = {
-	.nr = MSM_ION_HEAP_NUM,
-	.heaps = msm7x30_heaps,
+    .nr = MSM_ION_HEAP_NUM,
+    .has_outer_cache = 1,
+    .heaps = msm7x30_heaps,
 };
 
 static struct platform_device ion_dev = {
