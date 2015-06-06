@@ -3016,9 +3016,12 @@ int pmem_setup(struct android_pmem_platform_data *pdata,
 		goto err_cant_register_device;
 	}
 
-	if (!pmem[id].reusable &&
-        pmem[id].allocator_type != PMEM_ALLOCATORTYPE_DMA) {		
-        pmem[id].base = allocate_contiguous_memory_nomap(pmem[id].size,
+	if (pdata->start) {
+		pr_info("%s: allocating PMEM region from hard-coded address.\n", __func__);
+		pmem[id].base = pdata->start;
+	} else {
+		pr_info("%s: allocating PMEM region from system memory.\n", __func__);
+		pmem[id].base = allocate_contiguous_memory_nomap(pmem[id].size,
 			pmem[id].memory_type, PAGE_SIZE);
 		if (!pmem[id].base) {
 			pr_err("pmem: Cannot allocate from reserved memory for %s\n",
