@@ -254,10 +254,10 @@ struct pmem_info {
  	 * memory will be reused through fmem
  	 */
  	int reusable;
-+	/*
-+	 * private data
-+	 */
-+	void *private_data;
+	/*
+	 * private data
+	 */
+	void *private_data;
 };
 #define to_pmem_info_id(a) (container_of(a, struct pmem_info, kobj)->id)
 
