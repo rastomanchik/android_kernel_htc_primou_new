@@ -388,7 +388,7 @@ KBUILD_CPPFLAGS	:= -D__KERNEL__
 #		   			-funsafe-math-optimizations -fgcse-after-reload -pipe
 
 KBUILD_CFLAGS   :=  -Wall -Wundef -Wstrict-prototypes -fno-strict-aliasing \
-		   			-Werror-implicit-function-declaration \
+		   			-Werror-implicit-function-declaration -fno-common \
                     -marm -mcpu=cortex-a8 -mtune=cortex-a8 -mfpu=neon \
                     -fsingle-precision-constant -fpredictive-commoning -fipa-cp-clone \
                     -fmodulo-sched -fmodulo-sched-allow-regmoves \
