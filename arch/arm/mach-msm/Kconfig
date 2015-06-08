@@ -88,13 +88,7 @@ config MSM_XO
 
 config MSM_REMOTE_SPINLOCK_DEKKERS
 	bool
-config MSM_REMOTE_SPINLOCK_SWP
-	bool
 config MSM_REMOTE_SPINLOCK_LDREX
-	bool
-config MSM_REMOTE_SPINLOCK_SFPB
-	bool
-config MSM_ADM3
 	bool
 
 config PERFLOCK
@@ -194,40 +188,9 @@ config MSM_MDP40
 	depends on ARCH_MSM7X30 || ARCH_MSM8X60
 	default y
 
-config MSM_STACKED_MEMORY
-	bool "Stacked Memory"
-	default y
-	help
-	  This option is used to indicate the presence of on-die stacked
-	  memory.  When present this memory bank is used for a high speed
-	  shared memory interface.  When not present regular RAM is used.
-
 config PHYS_OFFSET
 	hex "Kernel physical start address"
-	default "0x40800000" if ARCH_MSM9615
-	default "0x80200000" if ARCH_APQ8064
-	default "0x80400000" if ARCH_MSM8960
-	default "0x80200000" if ARCH_MSMCOPPER
-	default "0x10000000" if ARCH_FSM9XXX
-	default "0x00200000" if !MSM_STACKED_MEMORY
-	default "0x00000000" if ARCH_QSD8X50 && MSM_SOC_REV_A
-	default "0x20000000" if ARCH_QSD8X50
-	default "0x48000000" if ARCH_MSM8X60
-	default "0x10000000"
-
-config KERNEL_PMEM_EBI_REGION
-	bool "Enable in-kernel PMEM region for EBI"
-	default y if ARCH_MSM8X60
-	depends on ANDROID_PMEM && (ARCH_MSM8X60 || ARCH_MSM8960)
-	help
-	   Enable the in-kernel PMEM allocator to use EBI memory.
-
-config KERNEL_PMEM_SMI_REGION
-	bool "Enable in-kernel PMEM region for SMI"
-	default y if ARCH_MSM8X60
-	depends on ANDROID_PMEM && ((ARCH_QSD8X50 && !PMEM_GPU0) || (ARCH_MSM8X60 && !VCM))
-	help
-	   Enable the in-kernel PMEM allocator to use SMI memory.
+	default "0x02000000"
 
 config PMEM_GPU0
 	bool "Enable PMEM GPU0 region"
@@ -350,10 +313,6 @@ choice
 	help
 	  Low resolution timer that allows power collapse from idle.
 
-	config MSM7X00A_USE_DG_TIMER
-		bool "DG Timer"
-	help
-	  High resolution timer.
 endchoice
 
 choice
@@ -469,11 +428,6 @@ config MSM_SUSPEND_STATS_FIRST_BUCKET
 	  histogram.  This is for collecting statistics on suspend.
 
 endif # MSM_IDLE_STATS
-
-config CPU_HAS_L2_PMU
-	bool "L2CC PMU Support"
-	help
-	 Select this if the L2 cache controller has a Performance Monitoring Unit.
 
 config HTC_HEADSET
 	tristate "HTC 2 Wire detection driver"
@@ -985,7 +939,7 @@ config MSM7KV2_AUDIO
 config MSM_ADSP_REPORT_EVENTS
 	bool "Report modem events from the DSP"
 	default y
-	depends on (MSM_ADSP || MSM7KV2_AUDIO || MSM7KV2_1X_AUDIO)
+	depends on MSM7KV2_AUDIO
 	help
 	  Normally, only messages from the aDSP are reported to userspace.
 	  With this option, we report events from the aDSP as well.
@@ -1017,13 +971,6 @@ config RTAC
 	help
 	  Enable support for rtac. This enables calibration during
 	  audio operation
-
-config MSM7X27A_AUDIO
-	bool "MSM7X27A audio support"
-	depends on ARCH_MSM7X27A && MSM_ADSP
-	default n
-	help
-	  Enable support for 7x27a. This provides audio functionality.
 
 config MSM_PROC_COMM_REGULATOR
 	bool
@@ -1082,7 +1029,7 @@ config QSD_AUDIO
 	  Provides PCM, MP3, and AAC audio playback.
 
 config AUDIO_AAC_PLUS
-	depends on (MSM_ADSP || QSD_AUDIO || MSM7KV2_AUDIO)
+	depends on MSM7KV2_AUDIO
 	bool "AAC+ Audio"
 	default y
 	help
@@ -1391,10 +1338,6 @@ config IOMMU_PGTABLES_L2
 	 section mappings and TLB misses should be quite infrequent.
 	 Most people can probably say Y here.
 
-config MSM_DIRECT_SCLK_ACCESS
-	bool "Direct access to the SCLK timer"
-	default n
-
 config IOMMU_API
        bool
 
@@ -1405,9 +1348,6 @@ config MSM_V2_TLMM
        bool
 
 config FSM9XXX_TLMM
-	bool
-
-config MSM_SECURE_IO
 	bool
 
 config MSM_NATIVE_RESTART
@@ -1589,22 +1529,6 @@ config MSM_SPM_V1
 	  Enables the support for Version 1 of the SPM driver. SPM hardware is
 	  used to manage the processor power during sleep. The driver allows
 	  configuring SPM to allow different power modes.
-
-config MSM_SPM_V2
-	bool "Driver support for SPM Version 2"
-	help
-	  Enables the support for Version 2 of the SPM driver. SPM hardware is
-	  used to manage the processor power during sleep. The driver allows
-	  configuring SPM to allow different power modes.
-
-config MSM_L2_SPM
-	bool "SPM support for L2 cache"
-	depends on MSM_SPM_V2
-	help
-	  Enable SPM driver support for L2 cache. Some MSM chipsets allow
-	  control of L2 cache low power mode with a Subsystem Power manager.
-	  Enabling this driver allows configuring L2 SPM for low power modes
-	  on supported chipsets.
 
 config MSM_MULTIMEDIA_USE_ION
 	bool "Multimedia support using Ion"

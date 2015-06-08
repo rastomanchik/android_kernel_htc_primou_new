@@ -1236,6 +1236,7 @@ static int ion_cp_change_mem_v2(unsigned int phy_base, unsigned int size,
 
 	nchunks = size / V2_CHUNK_SIZE;
 
+
 	chunk_list = allocate_contiguous_ebi(sizeof(unsigned long)*nchunks,
 						SZ_4K, 0);
 	if (!chunk_list)

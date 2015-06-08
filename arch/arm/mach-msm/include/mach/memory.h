@@ -67,17 +67,13 @@ unsigned long allocate_contiguous_ebi_nomap(unsigned long, unsigned long);
 void clean_and_invalidate_caches(unsigned long, unsigned long, unsigned long);
 void clean_caches(unsigned long, unsigned long, unsigned long);
 void invalidate_caches(unsigned long, unsigned long, unsigned long);
+int msm_get_memory_type_from_name(const char *memtype_name);
+unsigned long get_ddr_size(void);
 int platform_physical_remove_pages(u64, u64);
 int platform_physical_active_pages(u64, u64);
 int platform_physical_low_power_pages(u64, u64);
-int msm_get_memory_type_from_name(const char *memtype_name);
 
 extern int (*change_memory_power)(u64, u64, int);
-
-#if defined(CONFIG_ARCH_MSM_ARM11) || defined(CONFIG_ARCH_MSM_CORTEX_A5)
-void write_to_strongly_ordered_memory(void);
-void map_page_strongly_ordered(void);
-#endif
 
 #ifdef CONFIG_CACHE_L2X0
 extern void l2x0_cache_sync(void);

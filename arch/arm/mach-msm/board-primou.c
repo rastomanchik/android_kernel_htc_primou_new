@@ -3939,7 +3939,7 @@ static void __init size_ion_devices(void)
 
 static void __init msm7x30_calculate_reserve_sizes(void)
 {
-    msm7x30_reserve_table[MEMTYPE_EBI0].size += 0x00500000;
+//    msm7x30_reserve_table[MEMTYPE_EBI0].size += 0x00500000;
 	size_pmem_devices();
 	size_ion_devices();
 }
