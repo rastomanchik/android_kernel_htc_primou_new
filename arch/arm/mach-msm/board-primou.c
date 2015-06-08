@@ -3932,7 +3932,7 @@ static void __init size_pmem_devices(void)
 static void __init size_ion_devices(void)
 {
 	ion_pdata.heaps[1].base = MSM_PMEM_ADSP_BASE;
- 	ion_pdata.heaps[1].size = MSM_ION_CAMERA_SIZE;
+ 	ion_pdata.heaps[1].size = MSM_PMEM_ADSP_SIZE;
 	ion_pdata.heaps[2].base = MSM_ION_SF_BASE;
  	ion_pdata.heaps[2].size = MSM_ION_SF_SIZE;
 }
