@@ -570,57 +570,6 @@ static void *__alloc_remap_buffer(struct device *dev, size_t size, gfp_t gfp,
 	return ptr;
 }
 
-static void *__alloc_from_pool(struct device *dev, size_t size,
-			       struct page **ret_page, const void *caller)
-{
-	struct arm_vmregion *c;
-	size_t align;
-
-	if (!coherent_head.vm_start) {
-		printk(KERN_ERR "%s: coherent pool not initialised!\n",
-		       __func__);
-		dump_stack();
-		return NULL;
-	}
-
-	/*
-	 * Align the region allocation - allocations from pool are rather
-	 * small, so align them to their order in pages, minimum is a page
-	 * size. This helps reduce fragmentation of the DMA space.
-	 */
-	align = PAGE_SIZE << get_order(size);
-	c = arm_vmregion_alloc(&coherent_head, align, size, 0, caller);
-	if (c) {
-		void *ptr = (void *)c->vm_start;
-		struct page *page = virt_to_page(ptr);
-		*ret_page = page;
-		return ptr;
-	}
-	return NULL;
-}
-
-static int __free_from_pool(void *cpu_addr, size_t size)
-{
-	unsigned long start = (unsigned long)cpu_addr;
-	unsigned long end = start + size;
-	struct arm_vmregion *c;
-
-	if (start < coherent_head.vm_start || end > coherent_head.vm_end)
-		return 0;
-
-	c = arm_vmregion_find_remove(&coherent_head, (unsigned long)start);
-
-	if ((c->vm_end - c->vm_start) != size) {
-		printk(KERN_ERR "%s: freeing wrong coherent size (%ld != %d)\n",
-		       __func__, c->vm_end - c->vm_start, size);
-		dump_stack();
-		size = c->vm_end - c->vm_start;
-	}
-
-	arm_vmregion_free(&coherent_head, c);
-	return 1;
-}
-
 static void *__alloc_from_contiguous(struct device *dev, size_t size,
 				     pgprot_t prot, struct page **ret_page,
 				     bool no_kernel_mapping)
@@ -638,13 +587,6 @@ static void *__alloc_from_contiguous(struct device *dev, size_t size,
 
 	*ret_page = page;
 	return page_address(page);
-}
-
-static void __free_from_contiguous(struct device *dev, struct page *page,
-				   size_t size)
-{
-	__dma_remap(page, size, pgprot_kernel, false);
-	dma_release_from_contiguous(dev, page, size >> PAGE_SHIFT);
 }
 
 static inline pgprot_t __get_dma_pgprot(struct dma_attrs *attrs, pgprot_t prot)

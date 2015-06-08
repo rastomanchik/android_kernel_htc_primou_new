@@ -45,7 +45,7 @@ extern unsigned int ebi0_size;
 #define EBI1_PHYS_OFFSET 0x40000000
 #define EBI1_PAGE_OFFSET (EBI0_PAGE_OFFSET + ebi0_size)
 
-#if (defined(CONFIG_SPARSEMEM) && defined(CONFIG_VMSPLIT_3G))
+#if (defined(CONFIG_VMSPLIT_3G))
 
 #define __phys_to_virt(phys)				\
 	((phys) >= EBI1_PHYS_OFFSET ?			\
