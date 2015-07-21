@@ -40,7 +40,7 @@
 #include <linux/fmem.h>
 
 #if defined(CONFIG_ARCH_MSM7X30)
-unsigned int ebi0_size = 0x20000000;
+unsigned int ebi0_size = 0x21000000;
 EXPORT_SYMBOL(ebi0_size);
 #endif
 

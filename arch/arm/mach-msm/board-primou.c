@@ -3925,8 +3925,9 @@ static struct memtype_reserve msm7x30_reserve_table[] __initdata = {
 
 static void __init size_pmem_devices(void)
 {
-	android_pmem_adsp_pdata.start = MSM_PMEM_ADSP_BASE;
-	android_pmem_adsp_pdata.size = MSM_PMEM_ADSP_SIZE;
+	android_pmem_adsp_pdata.start =            MSM_PMEM_ADSP_BASE;
+	android_pmem_adsp_pdata.size =             MSM_PMEM_ADSP_SIZE;
+    msm7x30_reserve_table[MEMTYPE_EBI0].size = PMEM_KERNEL_EBI0_SIZE;
 }
 
 static void __init size_ion_devices(void)
@@ -3939,10 +3940,10 @@ static void __init size_ion_devices(void)
 
 static void __init msm7x30_calculate_reserve_sizes(void)
 {
-//    msm7x30_reserve_table[MEMTYPE_EBI0].size += 0x00500000;
 	size_pmem_devices();
 	size_ion_devices();
 }
+
 
 static int msm7x30_paddr_to_memtype(unsigned int paddr)
 {
@@ -3952,6 +3953,7 @@ static int msm7x30_paddr_to_memtype(unsigned int paddr)
 		return MEMTYPE_EBI1;
 	return MEMTYPE_NONE;
 }
+
 
 static struct reserve_info msm7x30_reserve_info __initdata = {
 	.memtype_reserve_table = msm7x30_reserve_table,

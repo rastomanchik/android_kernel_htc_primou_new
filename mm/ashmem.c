@@ -769,8 +769,14 @@ static long ashmem_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 			ashmem_shrink(&ashmem_shrinker, &sc);
 		}
 		break;
+	case ASHMEM_CACHE_FLUSH_RANGE:
+		ret = ashmem_cache_op(asma, &clean_and_invalidate_caches);
+		break;
 	case ASHMEM_CACHE_CLEAN_RANGE:
 		ret = ashmem_cache_op(asma, &clean_caches);
+		break;
+	case ASHMEM_CACHE_INV_RANGE:
+		ret = ashmem_cache_op(asma, &invalidate_caches);
 		break;
 	}
 

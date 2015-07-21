@@ -23,27 +23,29 @@
 #define PM8058_GPIO_PM_TO_SYS(pm_gpio)     (pm_gpio + NR_GPIO_IRQS)
 #define PM8058_GPIO_SYS_TO_PM(sys_gpio)    (sys_gpio - NR_GPIO_IRQS)
 
-#define MSM_LINUX_BASE1			0x13F00000
-#define MSM_LINUX_SIZE1			0x0C100000
-#define MSM_LINUX_BASE2			0x20000000
-#define MSM_LINUX_SIZE2			0x0B800000
+#define MSM_LINUX_BASE1         0x13F00000
+#define MSM_LINUX_SIZE1         0x0C100000
+#define MSM_LINUX_BASE2         0x20000000
+#define MSM_LINUX_SIZE2         0x0C000000
 
-#define MSM_PMEM_ADSP_BASE		0x2B800000
-#define MSM_PMEM_ADSP_SIZE		0x02000000
+#define MSM_PMEM_ADSP_BASE      0x2C000000
+#define MSM_PMEM_ADSP_SIZE      0x02000000
 
-#define MSM_ION_SF_BASE		    0x2D800000
-#define MSM_ION_SF_SIZE			0x02200000
-#define MSM_ION_HEAP_NUM		3
+#define MSM_ION_SF_BASE         0x2E000000
+#define MSM_ION_SF_SIZE         0x02000000
+#define MSM_ION_HEAP_NUM                 3
 
-#define MSM_FB_SIZE 0x00500000
+#define PMEM_KERNEL_EBI0_SIZE   0x00500000
 
-#define PRIMOU_GPIO_WIFI_IRQ             147
-#define PRIMOU_GPIO_WIFI_SHUTDOWN_N       39
+#define MSM_FB_SIZE             0x00500000
 
-#define PRIMOU_GPIO_KEYPAD_POWER_KEY		46
-#define PRIMOU_GPIO_TORCH_EN			98
+#define PRIMOU_GPIO_WIFI_IRQ           147
+#define PRIMOU_GPIO_WIFI_SHUTDOWN_N     39
 
-#define PRIMOU_GPIO_CHG_INT	180
+#define PRIMOU_GPIO_KEYPAD_POWER_KEY    46
+#define PRIMOU_GPIO_TORCH_EN            98
+
+#define PRIMOU_GPIO_CHG_INT            180
 
 #define PRIMOU_LAYOUTS			{ \
 		{ { 0,  1, 0}, { -1, 0,  0}, {0, 0,  1} }, \
